@@ -1,0 +1,5 @@
+theme = ["PaperMod"]
+title = '不要停止写作和阅读，不要停止思考，不要同情自己'
+baseURL = 'https://wurongpi.github.io'
+languageCode = 'en-us'
+defaultContentLanguage = "zh"
