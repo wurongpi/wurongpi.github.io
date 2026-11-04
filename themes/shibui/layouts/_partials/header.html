@@ -17,3 +17,30 @@
   </li>
 {{ end }}
 
+
+{{- /* 中英文切换：有对应翻译就跳到翻译页，没有就跳到该语言首页 */}}
+{{- if hugo.IsMultilingual }}
+  {{- $page := . }}
+  <nav class="lang-switch" aria-label="{{ T "language" }}">
+    <ul>
+      {{- range hugo.Sites }}
+        {{- $lang := .Language.Lang }}
+        {{- $name := .Language.Label }}
+        {{- if eq $lang $page.Language.Lang }}
+          <li class="current" aria-current="true">{{ $name }}</li>
+        {{- else }}
+          {{- $href := "" }}
+          {{- range $page.Translations }}
+            {{- if eq .Language.Lang $lang }}{{ $href = .RelPermalink }}{{ end }}
+          {{- end }}
+          {{- if $href }}
+          <li><a href="{{ $href }}" hreflang="{{ $lang }}" lang="{{ $lang }}">{{ $name }}</a></li>
+          {{- else }}
+          {{- /* 当前页没有这个语言的版本：链接到该语言首页，并用灰色和提示说明 */}}
+          <li><a class="no-translation" href="{{ .Home.RelPermalink }}" hreflang="{{ $lang }}" lang="{{ $lang }}" title="{{ T "noTranslation" (dict "Name" $name) }}">{{ $name }}</a></li>
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    </ul>
+  </nav>
+{{- end }}

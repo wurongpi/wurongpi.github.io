@@ -42,3 +42,83 @@
 .toc-content a:hover::after {
   width: 100%;
 }
+
+/* ===== 中文字体：寒蝉活仿楷（英文字体保持主题默认的 monospace） =====
+   @font-face 在构建时由 scripts/font_subset.py 生成并注入页面，
+   它的 unicode-range 只包含中文字符和中文标点，所以英文会自动落到后面的 monospace。
+   下面这条只用于本地预览（hugo server）：电脑上装了寒蝉活仿楷就能看到效果。 */
+@font-face {
+  font-family: "Chill HuoFangKai";
+  src: local("寒蝉活仿楷_復Regular"), local("ChillHuoFangKai_F_Regular");
+  font-display: swap;
+  unicode-range: U+2E80-2FDF, U+3000-303F, U+31C0-31EF, U+3200-33FF, U+3400-4DBF,
+    U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF,
+    U+2014, U+2018-2019, U+201C-201D, U+2026;
+}
+
+:root {
+  --font-family-mono: "Chill HuoFangKai", monospace;
+}
+
+/* 代码块保持纯等宽字体，不受中文字体影响 */
+code, pre, kbd, samp {
+  font-family: monospace;
+}
+
+/* ===== 中英文切换 ===== */
+header[role="banner"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+header[role="banner"] .path-nav {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.lang-switch {
+  flex: 0 0 auto;
+  font-family: var(--font-family-mono);
+}
+
+.lang-switch ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lang-switch li {
+  color: var(--color-text-muted);
+}
+
+.lang-switch li + li::before {
+  content: "|";
+  padding: 0 0.5em;
+  color: var(--color-text-muted);
+}
+
+.lang-switch li.current {
+  color: var(--color-text-primary);
+  font-weight: bold;
+}
+
+.lang-switch a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.lang-switch a:hover {
+  color: var(--color-text-primary);
+}
+
+/* 当前页没有对应翻译时，切换链接变淡并带虚线，悬停有提示 */
+.lang-switch a.no-translation {
+  opacity: 0.5;
+  text-decoration: underline dotted;
+  cursor: help;
+}

@@ -11,6 +11,17 @@
   content="{{ . }}"
 />{{ end }} {{/* Canonical URL */}}
 <link rel="canonical" href="{{ .Permalink }}" />
+{{- /* 多语言：告诉搜索引擎这一页的各语言版本 */}}
+{{- if .IsTranslated }}
+  {{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}" />
+  {{- end }}
+  {{- range .AllTranslations }}
+    {{- if eq .Language.Lang (index hugo.Sites 0).Language.Lang }}
+<link rel="alternate" hreflang="x-default" href="{{ .Permalink }}" />
+    {{- end }}
+  {{- end }}
+{{- end }}
 
 {{/* Open Graph */}}
 <meta property="og:title" content="{{ .Title }}" />

@@ -1,19 +1,41 @@
 baseURL = 'https://wurongpi.github.io/'
-locale = 'zh-CN'
-title = '个人主页'
 theme = 'shibui'
 enableGitInfo = true                    # 用 Git 提交时间作为“最后修改时间”
 hasCJKLanguage = true                   # 让中文的字数和阅读时间统计准确
 
+# ---------- 多语言 ----------
+# 中文是默认语言，放在网站根目录 /；英文放在 /en/ 下
+defaultContentLanguage = 'zh'
+defaultContentLanguageInSubdir = false
+
+[languages]
+  [languages.zh]
+    locale = 'zh-CN'
+    label = '中文'
+    title = '个人主页'
+    weight = 1
+    [languages.zh.params]
+      description = "探索研究和工程，试图享受创造的乐趣"
+      [languages.zh.params.author]
+        name = "吕荣杰"
+        email = "lv_rongjie@outlook.com"
+
+  [languages.en]
+    locale = 'en-US'
+    label = 'EN'
+    title = 'Homepage'
+    weight = 2
+    [languages.en.params]
+      description = "Exploring research and engineering, trying to enjoy the fun of creating"
+      [languages.en.params.author]
+        name = "Rongjie Lv"
+        email = "lv_rongjie@outlook.com"
+
 [params]
-description = "探索研究和工程，试图享受创造的乐趣"
 showtoc = true                    # 文章目录
 showreadingtime = true            # 阅读时间
-showlastmod = false               # 主题这一项有 bug，修复方法见指导第 8 步
+showlastmod = true                # 最后更新时间（模板 bug 已修复）
 comments = false                  # 主题评论用的是 Disqus，国内基本打不开，先关掉
-[params.author]
-name = "吕荣杰"
-email = "lv_rongjie@outlook.com"
 
 [markup]
 [markup.goldmark.renderer]
@@ -26,16 +48,20 @@ startLevel = 2
 endLevel = 4
 ordered = true
 
+# 菜单名称通过 identifier 到 i18n/zh.toml、i18n/en.toml 里取翻译
 [menus]
 [[menus.main]]
+identifier = "posts"
 name = "Posts"
 pageRef = "/posts"
 weight = 10
 [[menus.main]]
+identifier = "tags"
 name = "Tags"
 pageRef = "/tags"
 weight = 20
 [[menus.main]]
+identifier = "about"
 name = "About"
 pageRef = "/about"
 weight = 30
