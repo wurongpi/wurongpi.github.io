@@ -40,6 +40,8 @@ comments = false                  # 主题评论用的是 Disqus，国内基本�
 [markup]
 [markup.goldmark.renderer]
 unsafe = true # 允许在 Markdown 里写 HTML
+[markup.goldmark.parser]
+wrapStandAloneImageWithinParagraph = false # 单独成段的图片不再包在 <p> 里（主题用 <figure> 输出图片）
 [markup.highlight]
 noClasses = true
 style = "algol_nu" # 代码高亮配色，与主题演示站一致

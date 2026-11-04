@@ -1,20 +1,36 @@
-{{- $alt := .Text -}} {{- $src := .Destination -}} {{- $title := .Title -}}
-
+{{- /* 图片渲染：优先找页面包里的图片，其次找 assets/ 里的图片；
+     找到就自动缩到最宽 1200px 并转成 webp，写上宽高；找不到（比如外链）就原样输出 */ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $src := .Destination -}}
+{{- $width := "" -}}{{- $height := "" -}}
+{{- if not $u.IsAbs -}}
+  {{- with or (.PageInner.Resources.Get $u.Path) (resources.Get $u.Path) -}}
+    {{- $img := . -}}
+    {{- if and (eq .ResourceType "image") (ne .MediaType.SubType "svg") (ne .MediaType.SubType "gif") -}}
+      {{- if gt .Width 1200 -}}
+        {{- $img = .Resize "1200x webp q80" -}}
+      {{- else -}}
+        {{- $img = .Process "webp q80" -}}
+      {{- end -}}
+      {{- $width = $img.Width -}}{{- $height = $img.Height -}}
+    {{- end -}}
+    {{- $src = $img.RelPermalink -}}
+  {{- end -}}
+{{- end -}}
+{{- $img := printf `<img src="%s" alt="%s" loading="lazy" decoding="async"` (htmlEscape $src) .Text -}}
+{{- with $width }}{{ $img = printf `%s width="%d"` $img . }}{{ end -}}
+{{- with $height }}{{ $img = printf `%s height="%d"` $img . }}{{ end -}}
+{{- with .Title }}{{ $img = printf `%s title="%s"` $img (htmlEscape .) }}{{ end -}}
+{{- $img = printf "%s>" $img -}}
+{{- if .IsBlock -}}
+{{- /* 单独成段的图片：用 <figure>，alt 文字作为图注 */}}
 <figure>
-  <img
-    src="{{ $src }}"
-    alt="{{ $alt }}"
-    loading="lazy"
-    {{
-    with
-    $title
-    }}
-    title="{{ . }}"
-    {{
-    end
-    }}
-  />
-  {{- with $alt }}
+  {{ $img | safeHTML }}
+  {{- with .Text }}
   <figcaption>{{ . }}</figcaption>
-  {{ end -}}
+  {{- end }}
 </figure>
+{{- else -}}
+{{- /* 夹在文字中间的图片：只输出 <img>，不能放 <figure> */ -}}
+{{ $img | safeHTML }}
+{{- end -}}
