@@ -2,7 +2,7 @@
 posts = "Posts"
 tags = "Tags"
 about = "About"
-toc = "Table of contents"
+toc = "On this page"
 readingTime = "{{ .Count }} min read"
 lastUpdated = "Last updated: "
 skipToContent = "Skip to content"

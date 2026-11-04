@@ -2,7 +2,7 @@
 posts = "文章"
 tags = "标签"
 about = "关于"
-toc = "目录"
+toc = "本页目录"
 readingTime = "阅读约 {{ .Count }} 分钟"
 lastUpdated = "最后更新："
 skipToContent = "跳到正文"

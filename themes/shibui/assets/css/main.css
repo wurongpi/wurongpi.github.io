@@ -536,42 +536,34 @@ blockquote > :last-child {
   margin-bottom: 0;
 }
 
-/* Table of Contents */
+/* Table of Contents
+   宽屏：固定在正文右侧，无边框、无背景，当前阅读位置高亮（类似 Next.js 博客的 "On this page"）
+   窄屏：放在正文上方，可折叠，同样无边框 */
 .toc {
   margin: var(--spacing-base) 0;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
-  border-radius: var(--pre-border-radius);
-  box-shadow: 0 1px 2px 0 var(--color-border);
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
 }
 
 .toc-title {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
   cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-weight: bold;
   user-select: none;
-  transition: background-color 0.2s ease-in-out;
   list-style: none;
-  position: relative;
-  padding-left: var(--spacing-lg);
+  font-size: var(--font-size-small);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
 }
 
-.toc-title:hover {
-  background: var(--color-bg-primary);
+.toc-title::-webkit-details-marker {
+  display: none;
 }
 
-/* Custom disclosure triangle for details/summary */
 .toc-title::before {
-  content: "▶";
-  position: absolute;
-  left: var(--spacing-sm);
-  transition: transform 0.2s ease-in-out;
-  display: inline-block;
-  width: 1em;
+  content: "▸";
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease-in-out;
 }
 
 details[open] > .toc-title::before {
@@ -579,83 +571,73 @@ details[open] > .toc-title::before {
 }
 
 .toc-content {
-  padding: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-  animation: slideDown 0.3s ease-in-out;
+  font-size: var(--font-size-small);
+  line-height: 1.7;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 100vh;
-  }
+.toc-content ol,
+.toc-content ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-content ol ol,
+.toc-content ul ul {
+  padding-left: 1em;
+}
+
+.toc-content li {
+  margin: 0.15em 0;
 }
 
 .toc-content a {
+  display: block;
+  color: var(--color-text-muted);
   text-decoration: none;
-  color: var(--color-text-primary);
+  border-bottom: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: color 0.15s ease-in-out;
 }
 
-.toc-content a:hover {
+.toc-content a:hover,
+.toc-content a.active {
   color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: none;
 }
 
-/* CSS Counters for hierarchical numbering */
-.toc-content {
-  counter-reset: level1;
-  font-size: var(--font-size-small);
+.toc-content a.active {
+  font-weight: bold;
 }
 
-.toc-content ol {
-  list-style: none;
-  margin-left: 1.5rem;
-  padding: 0;
-  counter-reset: level2;
-}
+/* 宽屏：移到正文右侧并跟随滚动 */
+@media (min-width: 1024px) {
+  .toc {
+    position: fixed;
+    top: 7rem;
+    left: calc(50% + var(--container-width) / 2 + 2.5rem);
+    width: 13rem;
+    max-height: calc(100vh - 9rem);
+    overflow-y: auto;
+    margin: 0;
+    scrollbar-width: none;
+  }
 
-.toc-content ol li {
-  margin: var(--spacing-xs) 0;
-  counter-increment: level1;
-}
+  .toc::-webkit-scrollbar {
+    display: none;
+  }
 
-.toc-content ol li::before {
-  content: counter(level1) ". ";
-}
+  /* 宽屏下标题只作标签，不可折叠 */
+  .toc-title {
+    cursor: default;
+    pointer-events: none;
+    color: var(--color-text-primary);
+  }
 
-.toc-content ol ol {
-  margin-top: var(--spacing-xs);
-  margin-bottom: var(--spacing-xs);
-  counter-reset: level2;
-}
-
-.toc-content ol ol li {
-  counter-increment: level2;
-}
-
-.toc-content ol ol li::before {
-  content: counter(level1) "." counter(level2) ". ";
-}
-
-.toc-content ol ol ol {
-  counter-reset: level3;
-}
-
-.toc-content ol ol ol li {
-  counter-increment: level3;
-}
-
-.toc-content ol ol ol li::before {
-  content: counter(level1) "." counter(level2) "." counter(level3) ". ";
-}
-
-.toc-content ol ol ol ol li::before {
-  content: counter(level1) "." counter(level2) "." counter(level3) "." counter(level4) ". ";
+  .toc-title::before {
+    display: none;
+  }
 }
 
 .time {

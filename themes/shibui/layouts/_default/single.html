@@ -8,10 +8,31 @@
   {{ if and $hasToC (ge (len $headers) 1) }}
     <details class="toc" open>
       <summary class="toc-title">{{ T "toc" }}</summary>
-      <nav class="toc-content">
+      <div class="toc-content">
         {{ .TableOfContents }}
-      </nav>
+      </div>
     </details>
+    {{- /* 滚动时高亮目录里当前所在的小节；没有 JS 时目录照常可用 */}}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const links = [...document.querySelectorAll(".toc-content a[href^='#']")];
+        const map = new Map(links.map((a) => [decodeURIComponent(a.hash.slice(1)), a]));
+        const heads = [...map.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+        if (!heads.length || !("IntersectionObserver" in window)) return;
+        const visible = new Set();
+        const update = () => {
+          let current = heads.find((h) => visible.has(h));
+          if (!current) current = [...heads].reverse().find((h) => h.getBoundingClientRect().top < 0) || heads[0];
+          links.forEach((a) => a.classList.toggle("active", map.get(current.id) === a));
+        };
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+          update();
+        }, { rootMargin: "0px 0px -60% 0px" });
+        heads.forEach((h) => io.observe(h));
+        update();
+      });
+    </script>
   {{ end }}
 
    <!-- Content -->
