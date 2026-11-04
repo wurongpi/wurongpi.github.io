@@ -1,66 +1,91 @@
-# 放到仓库的 .github/workflows/hugo.yaml
 name: Deploy Hugo site to Pages
 
 on:
-    push:
-        branches: [main]
-    workflow_dispatch:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
-    contents: read
-    pages: write
-    id-token: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-    group: pages
-    cancel-in-progress: false
+  group: pages
+  cancel-in-progress: false
 
 defaults:
-    run:
-        shell: bash
+  run:
+    shell: bash
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        env:
-            HUGO_VERSION: 0.161.0 # 与本地版本保持一致
-            HUGO_ENVIRONMENT: production
-            TZ: Asia/Shanghai # 文章日期按北京时间
-        steps:
-            - name: Install Hugo CLI
-              run: |
-                  wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
-                  && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.161.0          # 与本地版本保持一致
+      HUGO_ENVIRONMENT: production
+      TZ: Asia/Shanghai              # 文章日期按北京时间
+      FONT_URL: https://github.com/Warren2060/ChillMovableType/releases/download/HuoFangKaiv1.00/ChillHuoFangKai_F.zip
+    steps:
+      - name: Install Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
 
-            - name: Checkout
-              uses: actions/checkout@v4
-              with:
-                  submodules: recursive # 拉取主题子模块，必须
-                  fetch-depth: 0 # 拉完整历史，enableGitInfo 需要
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0             # 拉完整历史，enableGitInfo 需要
 
-            - name: Setup Pages
-              id: pages
-              uses: actions/configure-pages@v5
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
-            - name: Configure Git
-              run: git config core.quotepath false # 中文文件名的 Git 信息才能正确读取
+      - name: Configure Git
+        run: git config core.quotepath false   # 中文文件名的 Git 信息才能正确读取
 
-            - name: Build with Hugo
-              run: |
-                  hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+      - name: Build with Hugo
+        run: |
+          hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
 
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
-              with:
-                  path: ./public
+      # ---------- 中文字体：寒蝉活仿楷（SIL OFL 开源授权） ----------
+      - name: Cache font
+        id: font-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/font
+          key: chill-huofangkai-v1.00
 
-    deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
-        needs: build
-        steps:
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
+      - name: Download font
+        if: steps.font-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/font
+          curl -sSL -o ${{ runner.temp }}/font.zip "$FONT_URL"
+          unzip -j -o ${{ runner.temp }}/font.zip ChillHuoFangKai_F_Regular.otf -d ${{ runner.temp }}/font
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Subset font to the characters used on the site
+        run: |
+          pip install --quiet fonttools brotli
+          python scripts/font_subset.py --public public --font ${{ runner.temp }}/font/ChillHuoFangKai_F_Regular.otf
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
