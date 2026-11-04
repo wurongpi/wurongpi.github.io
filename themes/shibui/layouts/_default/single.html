@@ -40,13 +40,15 @@
    <div class="time">
      {{ if not .Date.IsZero }}{{ partial "date.html" .Date }}{{ end }}
      {{ $showReadingTime := .Params.showreadingtime | default site.Params.showreadingtime | default true }}
+     {{ $hasBefore := not .Date.IsZero }}
+     {{ if and $showReadingTime .ReadingTime }}{{ $hasBefore = true }}{{ end }}
      {{ if and $showReadingTime .ReadingTime }}
-       <span class="reading-time"> · {{ T "readingTime" (dict "Count" .ReadingTime) }}</span>
+       <span class="reading-time">{{ if not .Date.IsZero }} · {{ end }}{{ T "readingTime" (dict "Count" .ReadingTime) }}</span>
      {{ end }}
      {{ $showLastMod := .Params.showlastmod | default site.Params.showlastmod | default false }}
      {{ if and $showLastMod .Lastmod }}
        {{ if ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02") }}
-         <span class="lastmod"> · {{ T "lastUpdated" }}{{ .Lastmod.Format "2006-01-02" }}</span>
+         <span class="lastmod">{{ if $hasBefore }} · {{ end }}{{ T "lastUpdated" }}{{ .Lastmod.Format "2006-01-02" }}</span>
        {{ end }}
      {{ end }}
    </div>
